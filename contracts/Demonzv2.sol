@@ -14,9 +14,10 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
     uint256 public MAX_PER_TX = 20;
     uint256 public MAX_PER_WALLET = 50;
     uint256 public PRICE = 0.06 ether;
+    uint256 public CURRENT_TOKEN_ID = 0; // for testing 
 
-    string public BEGINNING_URI = "";
-    string public ENDING_URI = "";
+    string public BEGINNING_URI = "test";
+    string public ENDING_URI = ".json";
 
     bool public ALLOW_MINTING = false;
 
@@ -31,6 +32,7 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
         for (uint256 i=0; i<_amount; ++i) {
             _safeMint(msg.sender, totalSupply());
+            _incrementTokenId();
         }
     }
 
@@ -45,6 +47,7 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         }
 
         _safeMint(msg.sender, totalSupply());
+        _incrementTokenId();
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -65,6 +68,14 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
     function setEndingURI(string memory _new_uri) external onlyOwner {
         ENDING_URI = _new_uri;
+    }
+
+    function _incrementTokenId() internal {
+        ++CURRENT_TOKEN_ID;
+    }
+
+    function getCurrentTokenId() view external returns (uint256) {
+        return CURRENT_TOKEN_ID;
     }
      
 }
