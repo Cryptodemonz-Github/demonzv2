@@ -6,6 +6,7 @@ import "./ERC721.sol";
 import './utils/Ownable.sol';
 import "./libs/Strings.sol";
 import "./ERC721Enumerable.sol";
+import "./mocks/Demonzv1.sol";
 
 contract Demonzv2 is ERC721Enumerable, Ownable {
     using Strings for uint256;
@@ -18,6 +19,8 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
     string public BEGINNING_URI = "test";
     string public ENDING_URI = ".json";
+
+    MockDemonzv1 public demonzv1;
 
     bool public ALLOW_MINTING = false;
 
@@ -36,14 +39,21 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         }
     }
 
+    function dummyMint(uint256 id) external payable {
+        IERC721(demonzv1).transferFrom(msg.sender, address(this), id);
+        //demonzv1.burnToken(id);
+    }
+
     function burnV1(uint256[] memory _ids) external payable {
-        require(_ids.length == 3, "You should burn only 3");
-        require(ALLOW_MINTING, "Minting has not begun yet");
-        require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
-        require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
+        //require(_ids.length == 3, "You should burn only 3");
+        //require(ALLOW_MINTING, "Minting has not begun yet");
+        //require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
+        //require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
         for (uint256 i=0; i<_ids.length; ++i) {
-            require(ownerOf(_ids[i]) == msg.sender, "Sender is not owner");
-            _burn(_ids[i]);
+            //require(ownerOf(_ids[i]) == msg.sender, "Sender is not owner");
+            //IERC721(demonzv1).safeTransferFrom(msg.sender, address(this), _ids[i]);
+           //_burn(_ids[i]);
+           demonzv1.burnToken(_ids[i]);
         }
 
         _safeMint(msg.sender, totalSupply());
@@ -76,6 +86,18 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
     function getCurrentTokenId() view external returns (uint256) {
         return CURRENT_TOKEN_ID;
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external returns (bytes4) {
+        return
+            bytes4(
+                keccak256("onERC721Received(address,address,uint256,bytes)")
+            );
     }
      
 }
