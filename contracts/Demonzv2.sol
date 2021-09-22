@@ -24,7 +24,9 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
     bool public ALLOW_MINTING = false;
 
-    constructor() ERC721 ("CryptoDemonzV2", "DEMONZv2") {}
+    constructor(MockDemonzv1 _demonzv1) ERC721 ("CryptoDemonzV2", "DEMONZv2") {
+        demonzv1 = _demonzv1;
+    }
 
     function mintToken(uint256 _amount) external payable {
         require(ALLOW_MINTING, "Minting has not begun yet");

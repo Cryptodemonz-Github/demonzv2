@@ -54,6 +54,7 @@ contract('Demonzv2', (accounts) => {
         //let burnTxn = await instance.burnV1([1, 2, 3]);
 
         //let transfer = instancev1.safeTransferFrom(accounts[0], instance.address, 1);
+        await instancev1.setApprovalForAll(instance.address, true);
         let approve = await instancev1.isApprovedForAll(accounts[0], instance.address);
         let txn = await instance.dummyMint(1);
             //console.log(accounts[0]);
