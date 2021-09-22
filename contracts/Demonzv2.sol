@@ -41,21 +41,15 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         }
     }
 
-    function dummyMint(uint256 id) external payable {
-        IERC721(demonzv1).transferFrom(msg.sender, address(this), id);
-        //demonzv1.burnToken(id);
-    }
-
     function burnV1(uint256[] memory _ids) external payable {
-        //require(_ids.length == 3, "You should burn only 3");
-        //require(ALLOW_MINTING, "Minting has not begun yet");
-        //require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
-        //require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
+        require(_ids.length == 3, "You should burn only 3");
+        require(ALLOW_MINTING, "Minting has not begun yet");
+        require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
+        require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
         for (uint256 i=0; i<_ids.length; ++i) {
-            //require(ownerOf(_ids[i]) == msg.sender, "Sender is not owner");
-            //IERC721(demonzv1).safeTransferFrom(msg.sender, address(this), _ids[i]);
-           //_burn(_ids[i]);
-           demonzv1.burnToken(_ids[i]);
+            require(IERC721(demonzv1).ownerOf(_ids[i]) == msg.sender, "Sender is not owner");
+            IERC721(demonzv1).safeTransferFrom(msg.sender, address(this), _ids[i]);
+            demonzv1.burnToken(_ids[i]);
         }
 
         _safeMint(msg.sender, totalSupply());

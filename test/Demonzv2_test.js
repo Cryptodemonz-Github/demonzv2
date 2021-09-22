@@ -1,5 +1,8 @@
 const Demonz = artifacts.require('Demonzv2');
 const Demonzv1 = artifacts.require('MockDemonzv1');
+
+const truffleAssert = require('truffle-assertions')
+
 contract('Demonzv2', (accounts) => {
 
     let instance;
@@ -44,20 +47,13 @@ contract('Demonzv2', (accounts) => {
 
     // this wont work, will continue tomorrow 
     it('can burn v1 to mint v2', async () => {
-        //let totalSupply = await instancev1.totalSupply();
-        //let burntxn = await instance.burnV1([1]);
-        //await instance.approve(instance.address, 1);
-
-        
-        //let owner = await instancev1.ownerOf(1);
-        //console.log(owner)
-        //let burnTxn = await instance.burnV1([1, 2, 3]);
-
-        //let transfer = instancev1.safeTransferFrom(accounts[0], instance.address, 1);
         await instancev1.setApprovalForAll(instance.address, true);
         let approve = await instancev1.isApprovedForAll(accounts[0], instance.address);
-        let txn = await instance.dummyMint(1);
-            //console.log(accounts[0]);
+        let txn = await instance.burnV1([1, 2, 3]);
+        await truffleAssert.fails(
+            instancev1.ownerOf(1),
+            truffleAssert.ErrorType.REVERT
+        )
     });
 
 })
