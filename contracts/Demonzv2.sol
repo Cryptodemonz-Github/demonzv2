@@ -28,10 +28,17 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         demonzv1 = _demonzv1;
     }
 
+    modifier safeMinting {
+        require(ALLOW_MINTING, "Minting has not begun yet");
+        _;
+    }
+
+    event tokenMinted(address _sender, uint256 _amount);
+    event tokenSacrificed(address _sender);    
+
     /// @notice standard minting function
     /// @param _amount to be minted
-    function mintToken(uint256 _amount) external payable {
-        require(ALLOW_MINTING, "Minting has not begun yet");
+    function mintToken(uint256 _amount) external payable safeMinting() {
         require(msg.value == _amount * PRICE, "Incorrect amount of ETH sent");
         require(_amount <= MAX_PER_TX, "Too many tokens queried for minting");
         require(totalSupply() + _amount <= MAX_TOKENS, "Not enough NFTs left to mint");
@@ -41,13 +48,14 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
             _safeMint(msg.sender, totalSupply());
             _incrementTokenId();
         }
+
+        emit tokenMinted(msg.sender, _amount);
     }
 
     /// @notice will mint demonzv2 for 3 demonzv1
     /// @param _ids array of demonzv1 ids to be burned
-    function burnV1(uint256[] memory _ids) external payable {
+    function burnV1(uint256[] memory _ids) external payable safeMinting() {
         require(_ids.length == 3, "You should burn only 3");
-        require(ALLOW_MINTING, "Minting has not begun yet");
         require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
         require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
         for (uint256 i=0; i<_ids.length; ++i) {
@@ -58,6 +66,8 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
         _safeMint(msg.sender, totalSupply());
         _incrementTokenId();
+        
+        emit tokenSacrificed(msg.sender);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
