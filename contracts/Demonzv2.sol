@@ -28,6 +28,8 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         demonzv1 = _demonzv1;
     }
 
+    /// @notice standard minting function
+    /// @param _amount to be minted
     function mintToken(uint256 _amount) external payable {
         require(ALLOW_MINTING, "Minting has not begun yet");
         require(msg.value == _amount * PRICE, "Incorrect amount of ETH sent");
@@ -41,6 +43,8 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         }
     }
 
+    /// @notice will mint demonzv2 for 3 demonzv1
+    /// @param _ids array of demonzv1 ids to be burned
     function burnV1(uint256[] memory _ids) external payable {
         require(_ids.length == 3, "You should burn only 3");
         require(ALLOW_MINTING, "Minting has not begun yet");
@@ -76,14 +80,17 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         ENDING_URI = _new_uri;
     }
 
+    /// @notice dummy function for unit testing
     function _incrementTokenId() internal {
         ++CURRENT_TOKEN_ID;
     }
 
+    /// @notice dummy function for unit testing
     function getCurrentTokenId() view external returns (uint256) {
         return CURRENT_TOKEN_ID;
     }
 
+    /// @dev DO NOT FORMAT THIS TO PURE, even tho compiler is asking
     function onERC721Received(
         address,
         address,
