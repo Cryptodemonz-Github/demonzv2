@@ -11,7 +11,7 @@ contract('Demonzv2', (accounts) => {
     beforeEach(async () => {
         instance = await Demonz.deployed();
         instancev1 = await Demonzv1.deployed();
-        let mintTxn = await instancev1.mintToken(5);
+        let mintTxn = await instancev1.mintToken(10);
     });
 
     it('dummy test', async () => {
@@ -21,17 +21,11 @@ contract('Demonzv2', (accounts) => {
 
     it('should mint', async () => {
         await instance.toggleMinting();
-        const ethAmount = web3.utils.toWei('0.12', 'ether');
-        let tx = await instance.mintToken(2, { value: ethAmount });
+        let tx = await instance.mintToken(2);
         let currentTokenID = await instance.getCurrentTokenId();
         let owner = await instance.ownerOf(1);
         assert.equal(currentTokenID.words[0], 2);
         assert.equal(accounts[0], owner);
-    });
-
-    it('can receive eth', async () => {
-        const contractBalance = await web3.eth.getBalance(instance.address);
-        assert.equal(contractBalance, web3.utils.toWei('0.12', 'ether'))
     });
 
     it('can accept 721 tokens', async () => {
@@ -48,12 +42,18 @@ contract('Demonzv2', (accounts) => {
     // this wont work, will continue tomorrow 
     it('can burn v1 to mint v2', async () => {
         await instancev1.setApprovalForAll(instance.address, true);
-        let approve = await instancev1.isApprovedForAll(accounts[0], instance.address);
+        await instancev1.isApprovedForAll(accounts[0], instance.address);
         let txn = await instance.burnV1([1, 2, 3]);
         await truffleAssert.fails(
             instancev1.ownerOf(1),
             truffleAssert.ErrorType.REVERT
         )
+        await truffleAssert.fails(
+            instance.burnV1([4, 5, 6, 7]),
+            truffleAssert.ErrorType.REVERT
+        )
+        let owner = await instance.ownerOf(1);
+        assert.equal(accounts[0], owner);
     });
 
 })

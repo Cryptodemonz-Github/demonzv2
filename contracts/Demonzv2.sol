@@ -11,10 +11,9 @@ import "./mocks/Demonzv1.sol";
 contract Demonzv2 is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
-    uint256 public MAX_TOKENS = 15000;
-    uint256 public MAX_PER_TX = 20;
+    uint256 public MAX_TOKENS = 2000;
+    uint256 public MAX_PER_TX = 3;
     uint256 public MAX_PER_WALLET = 50;
-    uint256 public PRICE = 0.06 ether;
     uint256 public CURRENT_TOKEN_ID = 0; // for testing 
 
     string public BEGINNING_URI = "test";
@@ -38,8 +37,7 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
 
     /// @notice standard minting function
     /// @param _amount to be minted
-    function mintToken(uint256 _amount) external payable safeMinting() {
-        require(msg.value == _amount * PRICE, "Incorrect amount of ETH sent");
+    function mintToken(uint256 _amount) public payable safeMinting() {
         require(_amount <= MAX_PER_TX, "Too many tokens queried for minting");
         require(totalSupply() + _amount <= MAX_TOKENS, "Not enough NFTs left to mint");
         require(balanceOf(msg.sender) + _amount <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
@@ -52,21 +50,21 @@ contract Demonzv2 is ERC721Enumerable, Ownable {
         emit tokenMinted(msg.sender, _amount);
     }
 
-    /// @notice will mint demonzv2 for 3 demonzv1
+    /// @notice will mint demonzv2 for burning demonzv1
     /// @param _ids array of demonzv1 ids to be burned
     function burnV1(uint256[] memory _ids) external payable safeMinting() {
-        require(_ids.length == 3, "You should burn only 3");
+        uint256 i = 0;
+        require(_ids.length % 3 == 0 && _ids.length <= 9, "Invalid list");
         require(totalSupply() + _ids.length <= MAX_TOKENS, "Not enough NFTs left to mint");
         require(balanceOf(msg.sender) + _ids.length <= MAX_PER_WALLET, "Exceeds wallet max allowed balance");
-        for (uint256 i=0; i<_ids.length; ++i) {
+        for (i=0; i<_ids.length; ++i) {
             require(IERC721(demonzv1).ownerOf(_ids[i]) == msg.sender, "Sender is not owner");
             IERC721(demonzv1).safeTransferFrom(msg.sender, address(this), _ids[i]);
             demonzv1.burnToken(_ids[i]);
-        }
+           }
 
-        _safeMint(msg.sender, totalSupply());
-        _incrementTokenId();
-        
+        mintToken(_ids.length / 3);
+        // no need to increment token id here
         emit tokenSacrificed(msg.sender);
     }
 
